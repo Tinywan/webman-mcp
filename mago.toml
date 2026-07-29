@@ -1,0 +1,17 @@
+#:schema vendor/carthage-software/mago/schema.json
+
+version = "1.45.0"
+php-version = "8.2.0"
+
+[source]
+paths = ["src", "tests", "examples", "config"]
+includes = ["vendor"]
+
+[linter.rules.cyclomatic-complexity]
+threshold = 40
+
+[linter.rules.excessive-parameter-list]
+threshold = 8
+
+[linter.rules.kan-defect]
+threshold = 2.5

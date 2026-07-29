@@ -1,0 +1,60 @@
+{
+    "name": "tinywan/webman-mcp",
+    "description": "Modern stateless MCP server SDK for Webman",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tinywan(ShaoBo Wan)"
+        }
+    ],
+    "repositories": {
+        "packagist.org": {
+            "type": "composer",
+            "url": "https://repo.packagist.org"
+        }
+    },
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*",
+        "opis/json-schema": "^2.4",
+        "webman/console": "^2.1",
+        "workerman/webman-framework": "^2.1"
+    },
+    "require-dev": {
+        "carthage-software/mago": "^1.45",
+        "pestphp/pest": "^3.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tinywan\\Mcp\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tinywan\\Mcp\\Examples\\": "examples/",
+            "Tinywan\\Mcp\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "format:check": "mago format --check",
+        "format": "mago format",
+        "lint": "mago lint",
+        "analyse": "mago analyze",
+        "test": "pest",
+        "check": [
+            "@format:check",
+            "@lint",
+            "@analyse",
+            "@test"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "carthage-software/mago": true,
+            "pestphp/pest-plugin": true
+        },
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}
