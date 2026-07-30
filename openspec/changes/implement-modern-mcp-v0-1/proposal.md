@@ -30,7 +30,7 @@ Webman 目前缺少一个面向常驻内存运行模型、可安全承载多个 
 
 ## Impact
 
-- 新增和调整 `src/`、`config/`、`tests/`、`examples/`、文档、Composer/Mago/Pest 配置及 Webman 插件入口。
+- 新增和调整 `src/`（含可发布的 `src/config/`）、`tests/`、`examples/`、文档、Composer/Mago/Pest 配置及 Webman 插件入口。
 - 公共 API 位于 `Tinywan\Mcp`，包括 protocol driver、Tool、认证、授权、DTO、registry 和 transport 类型。
 - 运行时依赖 `workerman/webman-framework ^2.1` 与 `opis/json-schema ^2.4`；开发依赖 Pest 3.8 和 Mago 1.45。
 - HTTP 集成方必须发送现代协议元数据并适配无 session、无 SSE 的 POST-only 行为。

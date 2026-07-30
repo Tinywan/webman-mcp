@@ -4,7 +4,7 @@ version = "1.45.0"
 php-version = "8.2.0"
 
 [source]
-paths = ["src", "tests", "examples", "config"]
+paths = ["src", "tests", "examples"]
 includes = ["vendor"]
 
 [linter.rules.cyclomatic-complexity]

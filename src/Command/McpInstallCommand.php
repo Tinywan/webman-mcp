@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Tinywan\Mcp\Command;
 
+use RuntimeException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Tinywan\Mcp\Webman\ConfigPublisher;
 
 #[AsCommand('mcp:install', 'Publish Webman MCP configuration without overwriting files')]
 final class McpInstallCommand extends Command
 {
     public function __construct(
-        private readonly ProjectWriter $writer = new ProjectWriter(),
-        private readonly string $packageRoot = __DIR__ . '/../..',
+        private readonly ConfigPublisher $publisher = new ConfigPublisher(),
     ) {
         parent::__construct();
     }
@@ -28,17 +29,17 @@ final class McpInstallCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $root = rtrim((string) $input->getOption('path'), characters: '/\\');
+        try {
+            $results = $this->publisher->publish($root);
+        } catch (RuntimeException $exception) {
+            $output->writeln("<error>{$exception->getMessage()}</error>");
+
+            return self::FAILURE;
+        }
+
         $conflicts = 0;
-        foreach (['app.php', 'servers.php', 'route.php'] as $file) {
-            $relative = "config/plugin/tinywan/webman-mcp/{$file}";
-            $contents = file_get_contents($this->packageRoot . "/{$relative}");
-            if ($contents === false) {
-                $output->writeln("<error>Missing package asset: {$relative}</error>");
-
-                return self::FAILURE;
-            }
-
-            if (!$this->writer->write("{$root}/{$relative}", $contents)) {
+        foreach ($results as $relative => $published) {
+            if (!$published) {
                 $output->writeln("<comment>Conflict, preserved existing file: {$relative}</comment>");
                 $conflicts++;
                 continue;

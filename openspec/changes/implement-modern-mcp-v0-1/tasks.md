@@ -1,7 +1,7 @@
 ## 1. 项目与质量基线
 
 - [x] 1.1 更新 `composer.json` 的包类型、PHP `^8.2`、PSR-4、Webman `^2.1`、Opis `^2.4`、Pest `^3.8` 和 Mago `^1.45` 依赖，并确认依赖图不包含 `mcp/sdk`
-- [x] 1.2 建立 `src/`、`tests/`、`examples/`、`config/` 和 `docs/` 的模块目录与严格类型 PHP 入口
+- [x] 1.2 建立 `src/`（含可发布的 `src/config/`）、`tests/`、`examples/` 和 `docs/` 的模块目录与严格类型 PHP 入口
 - [x] 1.3 配置 `tests/Pest.php`、测试套件和公共 helpers/expectations，确认最小 Pest 测试可运行
 - [x] 1.4 创建版本化 `mago.toml` 和 `format:check`、`format`、`lint`、`analyse`、`test`、`check` Composer scripts，且不使用 baseline
 - [x] 1.5 添加严格类型架构测试，扫描项目维护的源码、测试、示例、命令和 PHP 配置并排除 `vendor/`

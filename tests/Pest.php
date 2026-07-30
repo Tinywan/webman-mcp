@@ -10,7 +10,7 @@ function maintained_php_files(): array
     $root = dirname(__DIR__);
     $files = [];
 
-    foreach (['src', 'tests', 'examples', 'config'] as $directory) {
+    foreach (['src', 'tests', 'examples'] as $directory) {
         $path = $root . DIRECTORY_SEPARATOR . $directory;
         if (!is_dir($path)) {
             continue;

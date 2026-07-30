@@ -24,5 +24,9 @@ The public extension contracts are `ProtocolDriverInterface`, `ToolInterface`,
 contained inside Tool Schema validation, and Webman request/response objects are contained inside the
 transport adapter.
 
+Publishable Webman configuration lives under `src/config/plugin/tinywan/webman-mcp` in the package.
+The standard Webman installer and `mcp:install` publish it to the application's
+`config/plugin/tinywan/webman-mcp` directory without overwriting existing files.
+
 The v0.1 result family reserves `StreamResult`, but production dispatch returns only `JsonResult` or
 `AcceptedResult`.

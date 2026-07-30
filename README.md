@@ -7,8 +7,11 @@ only protocol `2026-07-28` and the `server/discover`, `tools/list`, and `tools/c
 
 ```bash
 composer require tinywan/webman-mcp
-php webman mcp:install
 ```
+
+Webman publishes the package configuration from `src/config/plugin/tinywan/webman-mcp` to
+`config/plugin/tinywan/webman-mcp` during installation. Run `php webman mcp:install` only to publish
+missing assets manually; it preserves every existing application file and reports conflicts.
 
 Add a Server definition to
 `config/plugin/tinywan/webman-mcp/servers.php`. For a local Calculator demonstration:

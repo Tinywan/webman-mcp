@@ -9,6 +9,7 @@ use Tinywan\Mcp\Command\MakeMcpToolCommand;
 use Tinywan\Mcp\Command\McpInspectCommand;
 use Tinywan\Mcp\Command\McpInstallCommand;
 use Tinywan\Mcp\Command\McpListCommand;
+use Tinywan\Mcp\Install;
 use Tinywan\Mcp\Registry\RegisteredTool;
 use Tinywan\Mcp\Registry\RegistryException;
 use Tinywan\Mcp\Registry\ServerDefinition;
@@ -172,11 +173,21 @@ it('validates configured definitions and builds one callback per Server path', f
 });
 
 it('ships command registration and deny-all empty Server defaults', function (): void {
-    $app = required_config(require dirname(__DIR__, levels: 3) . '/config/plugin/tinywan/webman-mcp/app.php');
-    $servers = required_config(require dirname(__DIR__, levels: 3) . '/config/plugin/tinywan/webman-mcp/servers.php');
+    $configRoot = dirname(__DIR__, levels: 3) . '/src/config/plugin/tinywan/webman-mcp';
+    $app = required_config(require "{$configRoot}/app.php");
+    $servers = required_config(require "{$configRoot}/servers.php");
     assert(is_array($app['command']), description: 'Command configuration must be an array.');
 
-    expect($app['enable'])->toBeTrue()->and($app['command'])->toHaveCount(5)->and($servers)->toBe(['servers' => []]);
+    expect($app['enable'])
+        ->toBeTrue()
+        ->and($app['command'])
+        ->toHaveCount(5)
+        ->and($servers)
+        ->toBe(['servers' => []])
+        ->and(Install::WEBMAN_PLUGIN)
+        ->toBeTrue()
+        ->and(dirname(__DIR__, levels: 3) . '/config/app.php')
+        ->not->toBeFile();
 });
 
 /**
