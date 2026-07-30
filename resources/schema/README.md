@@ -1,10 +1,13 @@
-# MCP 2026-07-28 baseline
+# MCP 2026-07-28 schema
 
-`2026-07-28-baseline.json` is the offline compatibility fixture used by this SDK.
-It records the v0.1-relevant invariants from the official schema at commit
-`271ecc9accafdd9b83a3c869fa67c22953b2af80` and the SHA-256 of the complete
-181,474-byte upstream schema.
+`2026-07-28-schema.json` is the complete official MCP schema pinned for offline conformance tests.
 
-Runtime protocol handling never fetches a schema over the network. The source URL is
-retained only so maintainers can independently reproduce the checksum when proposing a
-future protocol upgrade.
+| Field | Value |
+| --- | --- |
+| Source | `https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/271ecc9accafdd9b83a3c869fa67c22953b2af80/schema/2026-07-28/schema.json` |
+| Commit | `271ecc9accafdd9b83a3c869fa67c22953b2af80` |
+| Size | `181474` bytes |
+| SHA-256 | `ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203` |
+
+The runtime never fetches or evaluates this file. Tests use it to verify the supported
+`server/discover`, `tools/list`, and `tools/call` wire shapes against the pinned protocol release.

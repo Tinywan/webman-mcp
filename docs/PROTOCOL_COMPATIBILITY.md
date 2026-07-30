@@ -5,10 +5,11 @@
 - Protocol version: `2026-07-28`
 - Official schema commit: `271ecc9accafdd9b83a3c869fa67c22953b2af80`
 - Schema SHA-256: `ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203`
+- Complete offline schema: `resources/schema/2026-07-28-schema.json` (`181474` bytes)
 - Request IDs: string or integer only
 
-The runtime and tests use the versioned local baseline metadata and do not fetch a Schema over the
-network.
+The complete official schema is pinned byte-for-byte and verified by offline tests. Runtime protocol
+handling does not fetch or evaluate a Schema over the network.
 
 ## Supported Methods
 
@@ -38,7 +39,8 @@ Errors retain a valid request ID when it can be identified safely and otherwise 
 - Each Server has an independent POST endpoint.
 - `Content-Type` must be `application/json`.
 - `Accept` must include both `application/json` and `text/event-stream`.
-- `MCP-Protocol-Version` and `Mcp-Method` are required; `Mcp-Name` is required for `tools/call`.
+- The official `MCP-Protocol-Version` and `Mcp-Method` routing Headers are required; `Mcp-Name` is
+  required for `tools/call`. Their values must match the JSON-RPC body.
 - Notifications return HTTP 202 with an empty body.
 - Incoming `Mcp-Session-Id` and `Last-Event-ID` are ignored and never echoed.
 - No v0.1 response emits SSE.
@@ -47,6 +49,12 @@ Errors retain a valid request ID when it can be identified safely and otherwise 
 
 Version 0.1 intentionally does not support `initialize`, legacy HTTP/SSE transport, protocol probing,
 downgrade, session creation/resumption, or legacy clients that require those behaviors.
+
+## Client Compatibility
+
+Clients, including Codex, must support MCP `2026-07-28`. Conformance tests cover a stateless
+Codex-shaped request with per-request client information and the official routing Headers, but the SDK
+does not implement or emulate Client behavior.
 
 ## Deferred Capabilities
 

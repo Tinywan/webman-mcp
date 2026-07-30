@@ -7,9 +7,11 @@ namespace Tinywan\Mcp\Command;
 use Closure;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
+use Tinywan\Mcp\Registry\RegisteredTool;
 use Tinywan\Mcp\Registry\ServerRegistry;
 use Tinywan\Mcp\Webman\RegistryProvider;
 
@@ -38,16 +40,23 @@ final class McpListCommand extends Command
             return self::FAILURE;
         }
 
-        foreach ($registry->servers() as $server) {
-            $output->writeln("SERVER {$server->id} {$server->path}");
-            foreach ($server->tools() as $tool) {
-                $output->writeln("  TOOL {$tool->definition->name}");
-            }
+        $servers = $registry->servers();
+        if ($servers === []) {
+            $output->writeln('No MCP Servers configured.');
+
+            return self::SUCCESS;
         }
 
-        if ($registry->servers() === []) {
-            $output->writeln('No MCP Servers configured.');
+        $rows = [];
+        foreach ($servers as $server) {
+            $tools = array_map(static fn(RegisteredTool $tool): string => $tool->definition->name, $server->tools());
+            $rows[] = [$server->id, $server->path, implode(PHP_EOL, $tools)];
         }
+
+        (new Table($output))
+            ->setHeaders(['Server', 'Endpoint', 'Tools'])
+            ->setRows($rows)
+            ->render();
 
         return self::SUCCESS;
     }

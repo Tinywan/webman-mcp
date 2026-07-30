@@ -1,48 +1,39 @@
 # Webman MCP
 
-`tinywan/webman-mcp` is a stateless MCP Server SDK for Webman and PHP 8.2+. Version 0.1 implements
-only protocol `2026-07-28` and the `server/discover`, `tools/list`, and `tools/call` methods.
+Stateless MCP Server SDK for Webman and PHP 8.2+.
 
-## Requirements
+- MCP protocol: `2026-07-28`
+- Methods: `server/discover`, `tools/list`, `tools/call`
+- Transport: stateless HTTP POST
+- Authentication and authorization: denied by default
 
-- PHP 8.2 or later
-- Webman 2.1 or later
-- JSON extension
+See the official [MCP `2026-07-28` release](https://blog.modelcontextprotocol.io/posts/2026-07-28/).
 
-## Install
+## Installation
 
-Run the following command in a Webman project:
+Run in a Webman 2.1+ project:
 
 ```bash
 composer require tinywan/webman-mcp
 ```
 
-Webman publishes the package configuration from `src/config/plugin/tinywan/webman-mcp` to
-`config/plugin/tinywan/webman-mcp` during installation.
+The package automatically publishes its configuration to
+`config/plugin/tinywan/webman-mcp`.
 
 ## Quick Start
 
-This example creates a Calculator MCP Server and exposes a `calculate` Tool that adds two numbers.
+The following example exposes a `calculate` Tool that adds two numbers.
 
-### 1. Generate the Server and Tool
-
-Run these commands in the Webman project root:
+### 1. Generate the files
 
 ```bash
 php webman make:mcp-server Calculator
 php webman make:mcp-tool Calculator
 ```
 
-They create:
-
-```text
-app/mcp/CalculatorServer.php
-app/mcp/CalculatorTool.php
-```
+This creates `app/mcp/CalculatorServer.php` and `app/mcp/CalculatorTool.php`.
 
 ### 2. Implement the Tool
-
-Replace `app/mcp/CalculatorTool.php` with:
 
 ```php
 <?php
@@ -76,21 +67,16 @@ final class CalculatorTool implements ToolInterface
             ],
             [
                 'type' => 'object',
-                'properties' => [
-                    'value' => ['type' => 'number'],
-                ],
+                'properties' => ['value' => ['type' => 'number']],
                 'required' => ['value'],
                 'additionalProperties' => false,
             ],
-            'Calculator',
         );
     }
 
     public function call(ToolCall $call, ExecutionContext $context): ToolResult
     {
-        $left = (float) $call->arguments['left'];
-        $right = (float) $call->arguments['right'];
-        $value = $left + $right;
+        $value = (float) $call->arguments['left'] + (float) $call->arguments['right'];
 
         return ToolResult::success(
             [new TextContent((string) $value)],
@@ -100,12 +86,10 @@ final class CalculatorTool implements ToolInterface
 }
 ```
 
-The SDK validates the arguments against the Tool input Schema before invoking `call()` and validates
-the optional structured result against the output Schema afterward.
+Save it as `app/mcp/CalculatorTool.php`. Arguments and structured output are validated against their
+JSON Schemas.
 
-### 3. Register the Tool on a Server
-
-Replace `app/mcp/CalculatorServer.php` with:
+### 3. Register the Tool
 
 ```php
 <?php
@@ -129,13 +113,8 @@ final class CalculatorServer
         return new ServerDefinition(
             'calculator',
             '/mcp/calculator',
-            new ServerIdentity('Calculator Server', '0.1.0'),
-            [
-                new RegisteredTool(
-                    $tool->definition(),
-                    CalculatorTool::class,
-                ),
-            ],
+            new ServerIdentity('Calculator', '1.0.0'),
+            [new RegisteredTool($tool->definition(), CalculatorTool::class)],
             new AllowAnonymousAuthenticator(),
             new AllowAllAuthorizer(),
         );
@@ -143,13 +122,8 @@ final class CalculatorServer
 }
 ```
 
-This example explicitly permits anonymous access so that it can be tested locally. A production
-Server should provide application-specific implementations of `AuthenticatorInterface` and
-`AuthorizerInterface`. The defaults deny both authentication and authorization.
-
-### 4. Add the Server to the Configuration
-
-Update `config/plugin/tinywan/webman-mcp/servers.php`:
+Save it as `app/mcp/CalculatorServer.php`, then update
+`config/plugin/tinywan/webman-mcp/servers.php`:
 
 ```php
 <?php
@@ -159,44 +133,22 @@ declare(strict_types=1);
 use app\mcp\CalculatorServer;
 
 return [
-    'servers' => [
-        CalculatorServer::definition(),
-    ],
+    'servers' => [CalculatorServer::definition()],
 ];
 ```
 
-Validate and inspect the configuration:
+Anonymous access is enabled only for this local example. Production Servers should provide explicit
+implementations of `AuthenticatorInterface` and `AuthorizerInterface`.
+
+### 4. Verify and run
 
 ```bash
 php webman mcp:inspect
 php webman mcp:list
-```
-
-The list should include:
-
-```text
-SERVER calculator /mcp/calculator
-  TOOL calculate
-```
-
-### 5. Start Webman
-
-Use the start command appropriate for the Webman application. For example:
-
-```bash
 php start.php start
 ```
 
-Webman projects running directly on Windows commonly use:
-
-```bash
-php windows.php
-```
-
-### 6. Call the Tool
-
-Every MCP endpoint is POST-only. A request must advertise both response media types even though v0.1
-never emits SSE. The method and Tool name Headers must mirror the JSON-RPC message:
+Call the Tool (replace the port if needed):
 
 ```bash
 curl -i http://127.0.0.1:8787/mcp/calculator \
@@ -221,21 +173,81 @@ curl -i http://127.0.0.1:8787/mcp/calculator \
   }'
 ```
 
-The structured result contains a `value` of `13`. Omit `id` to send a notification; a processed
-notification returns HTTP 202 with an empty body.
-
-The SDK does not create, consume, or echo `Mcp-Session-Id` or `Last-Event-ID`.
+The response contains `structuredContent.value: 13`.
 
 ## Commands
 
-```text
-mcp:install
-make:mcp-server <name>
-make:mcp-tool <name>
-mcp:list
-mcp:inspect
+Run commands from the Webman project root:
+
+| Command | Description |
+| --- | --- |
+| `php webman make:mcp-server <name>` | Generate a Server scaffold |
+| `php webman make:mcp-tool <name>` | Generate a Tool scaffold |
+| `php webman mcp:list` | List configured Servers and Tools |
+| `php webman mcp:inspect` | Validate configuration and Schemas |
+| `php webman mcp:install` | Publish individual missing configuration files |
+
+`mcp:install` never overwrites existing files. It is not available when the command registration
+configuration itself is missing.
+
+## Documentation
+
+- [Protocol compatibility](docs/PROTOCOL_COMPATIBILITY.md)
+- [Security](docs/SECURITY.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Pinned official schema](resources/schema/README.md)
+- [Calculator example](examples/Calculator)
+
+## Using with Codex and Other Agents
+
+Start the Webman Server first and make sure the Agent can access its URL:
+
+```bash
+php start.php start
 ```
 
-See [protocol compatibility](docs/PROTOCOL_COMPATIBILITY.md), [security](docs/SECURITY.md), and
-[architecture](docs/ARCHITECTURE.md) before deploying. A more complete Calculator implementation is
-available under [`examples/Calculator`](examples/Calculator).
+### Codex CLI
+
+Register the HTTP endpoint:
+
+```bash
+codex mcp add calculator --url http://127.0.0.1:8787/mcp/calculator
+codex mcp list
+```
+
+If the Server uses Bearer authentication, store the token in an environment variable and register
+its name instead of putting the token in the command:
+
+```bash
+codex mcp add calculator \
+  --url http://127.0.0.1:8787/mcp/calculator \
+  --bearer-token-env-var MCP_CALCULATOR_TOKEN
+```
+
+Start a new Codex session after changing the MCP configuration, then ask:
+
+```text
+Use the calculate Tool to add 6 and 7.
+```
+
+Codex should discover the Server and call `calculate`, returning `13`.
+
+### Other Agents
+
+In the Agent's MCP settings, add a remote HTTP Server with these values:
+
+| Setting | Value |
+| --- | --- |
+| Name | `calculator` |
+| URL | `http://127.0.0.1:8787/mcp/calculator` |
+| Transport | HTTP / Streamable HTTP |
+| Protocol version | `2026-07-28` |
+
+Configuration field names differ between Agents. A compatible Agent must support MCP `2026-07-28`
+and send the official per-request `_meta`, `MCP-Protocol-Version`, `Mcp-Method`, and conditional
+`Mcp-Name` routing Headers. This SDK does not support `initialize`, sessions, protocol downgrade, or
+legacy SSE transport.
+
+If the Agent runs in Docker, a VM, or another host, `127.0.0.1` points to that environment rather than
+the Webman host. Use an address reachable from the Agent, such as `host.docker.internal`, a container
+service name, or the Server's LAN/domain address.

@@ -1,0 +1,30 @@
+{
+    "headers": {
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/event-stream",
+        "MCP-Protocol-Version": "2026-07-28",
+        "Mcp-Method": "tools/call",
+        "Mcp-Name": "calculate"
+    },
+    "body": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "tools/call",
+        "params": {
+            "_meta": {
+                "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+                "io.modelcontextprotocol/clientCapabilities": {},
+                "io.modelcontextprotocol/clientInfo": {
+                    "name": "codex-cli",
+                    "version": "0.145.0"
+                }
+            },
+            "name": "calculate",
+            "arguments": {
+                "operation": "add",
+                "left": 6,
+                "right": 7
+            }
+        }
+    }
+}
