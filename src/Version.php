@@ -6,7 +6,7 @@ namespace Tinywan\Mcp;
 
 final class Version
 {
-    public const SDK = '0.1.0';
+    public const SDK = '0.1.2';
 
     public const PROTOCOL = '2026-07-28';
 

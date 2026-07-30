@@ -73,9 +73,10 @@ it('publishes configuration once and preserves every existing target', function 
         expect($first->execute(['--path' => $root]))->toBe(Command::SUCCESS);
 
         $app = $root . '/config/plugin/tinywan/webman-mcp/app.php';
+        $command = $root . '/config/plugin/tinywan/webman-mcp/command.php';
         $servers = $root . '/config/plugin/tinywan/webman-mcp/servers.php';
         $route = $root . '/config/plugin/tinywan/webman-mcp/route.php';
-        expect($app)->toBeFile()->and($servers)->toBeFile()->and($route)->toBeFile();
+        expect($app)->toBeFile()->and($command)->toBeFile()->and($servers)->toBeFile()->and($route)->toBeFile();
 
         $custom = "<?php\n\n// application-owned\n";
         file_put_contents($app, $custom, LOCK_EX);
@@ -175,12 +176,12 @@ it('validates configured definitions and builds one callback per Server path', f
 it('ships command registration and deny-all empty Server defaults', function (): void {
     $configRoot = dirname(__DIR__, levels: 3) . '/src/config/plugin/tinywan/webman-mcp';
     $app = required_config(require "{$configRoot}/app.php");
+    $commands = required_command_config(require "{$configRoot}/command.php");
     $servers = required_config(require "{$configRoot}/servers.php");
-    assert(is_array($app['command']), description: 'Command configuration must be an array.');
 
     expect($app['enable'])
         ->toBeTrue()
-        ->and($app['command'])
+        ->and($commands)
         ->toHaveCount(5)
         ->and($servers)
         ->toBe(['servers' => []])
@@ -198,5 +199,16 @@ function required_config(mixed $config): array
     assert(is_array($config) && !array_is_list($config), description: 'Plugin configuration must be an object array.');
 
     /** @var array<string, mixed> $config */
+    return $config;
+}
+
+/**
+ * @return list<class-string>
+ */
+function required_command_config(mixed $config): array
+{
+    assert(is_array($config) && array_is_list($config), description: 'Command configuration must be a list.');
+
+    /** @var list<class-string> $config */
     return $config;
 }
