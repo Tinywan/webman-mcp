@@ -197,8 +197,41 @@ configuration itself is missing.
 - [Protocol compatibility](docs/PROTOCOL_COMPATIBILITY.md)
 - [Security](docs/SECURITY.md)
 - [Architecture](docs/ARCHITECTURE.md)
+- [Neuron AI application integration](docs/NEURON_AI_CLIENT.md)
 - [Pinned official schema](resources/schema/README.md)
 - [Calculator example](examples/Calculator)
+
+## Calling from an Application
+
+Applications can call a known Tool directly with the stateless HTTP contract shown in Quick Start.
+Keep the MCP URL, authentication, protocol metadata, and routing Headers on the server side; expose a
+separate business endpoint to browsers and mobile clients instead of forwarding arbitrary MCP URLs.
+
+For Neuron AI 3.16, use `McpClient::callTool()` when the Tool name and arguments are already known:
+
+```php
+use app\neuron\WebmanMcpTransport;
+use NeuronAI\MCP\McpClient;
+
+$client = new McpClient([
+    'transport' => new WebmanMcpTransport(
+        'http://127.0.0.1:8787/mcp/calculator',
+    ),
+]);
+
+$response = $client->callTool('calculate', [
+    'left' => 6,
+    'right' => 7,
+]);
+
+$value = $response['result']['structuredContent']['value'];
+```
+
+`WebmanMcpTransport` is an application-side adapter. It maps Neuron's initialization sequence to this
+SDK's stateless `server/discover` contract and adds the required `2026-07-28` metadata and routing
+Headers. Do not add it to this Server SDK. See the
+[complete Neuron AI integration guide](docs/NEURON_AI_CLIENT.md) for the adapter, application Service,
+HTTP endpoint, Docker networking, and `McpConnector + Agent` example.
 
 ## Using with Codex and Other Agents
 

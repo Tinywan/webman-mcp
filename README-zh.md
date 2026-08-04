@@ -202,8 +202,40 @@ curl -i http://127.0.0.1:8787/mcp/calculator \
 - [协议兼容性](docs/PROTOCOL_COMPATIBILITY.md)
 - [安全说明](docs/SECURITY.md)
 - [架构说明](docs/ARCHITECTURE.md)
+- [Neuron AI 应用调用案例](docs/NEURON_AI_CLIENT.md)
 - [固定版本的官方 Schema](resources/schema/README.md)
 - [Calculator 示例](examples/Calculator)
+
+## 应用如何调用
+
+应用已经知道工具名和参数时，可以按照“快速开始”中的无状态 HTTP 协议直接调用。MCP URL、
+认证信息、协议元数据和路由请求头应由应用服务端管理；浏览器或移动端应调用独立的业务接口，
+不要允许终端用户传入任意 MCP URL。
+
+Neuron AI 3.16 中，确定性业务使用 `McpClient::callTool()`：
+
+```php
+use app\neuron\WebmanMcpTransport;
+use NeuronAI\MCP\McpClient;
+
+$client = new McpClient([
+    'transport' => new WebmanMcpTransport(
+        'http://127.0.0.1:8787/mcp/calculator',
+    ),
+]);
+
+$response = $client->callTool('calculate', [
+    'left' => 6,
+    'right' => 7,
+]);
+
+$value = $response['result']['structuredContent']['value'];
+```
+
+`WebmanMcpTransport` 是放在业务应用中的兼容层，负责把 Neuron 初始化流程转换为本 SDK 的
+无状态 `server/discover` 调用，并补充 `2026-07-28` 所需的元数据和路由请求头，不应将其加入
+本服务端 SDK。完整适配器、应用 Service、业务 HTTP 接口、Docker 网络和
+`McpConnector + Agent` 示例见 [Neuron AI 应用调用案例](docs/NEURON_AI_CLIENT.md)。
 
 ## 在 Codex 和其他 Agent 中使用
 
