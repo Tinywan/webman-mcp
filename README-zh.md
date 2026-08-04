@@ -2,40 +2,46 @@
 
 [English](README.md) | [简体中文](README-zh.md)
 
-Stateless MCP Server SDK for Webman and PHP 8.2+.
+适用于 Webman 和 PHP 8.2+ 的无状态 MCP Server SDK。
 
-- MCP protocol: `2026-07-28`
-- Methods: `server/discover`, `tools/list`, `tools/call`
-- Transport: stateless HTTP POST
-- Authentication and authorization: denied by default
+- MCP 协议：`2026-07-28`
+- 支持方法：`server/discover`、`tools/list`、`tools/call`
+- 传输方式：无状态 HTTP POST
+- 认证与授权：默认拒绝访问
 
-See the official [MCP `2026-07-28` release](https://blog.modelcontextprotocol.io/posts/2026-07-28/).
+协议详情请参阅官方 [MCP `2026-07-28` 发布说明](https://blog.modelcontextprotocol.io/posts/2026-07-28/)。
 
-## Installation
+## 安装
 
-Run in a Webman 2.1+ project:
+在 Webman 2.1+ 项目中执行：
 
 ```bash
 composer require tinywan/webman-mcp
 ```
 
-The package automatically publishes its configuration to
-`config/plugin/tinywan/webman-mcp`.
+安装时会自动将配置发布到 `config/plugin/tinywan/webman-mcp`。
 
-## Quick Start
+## 快速开始
 
-The following example exposes a `calculate` Tool that adds two numbers.
+下面创建一个 Calculator MCP Server，并提供计算两数之和的 `calculate` 工具。
 
-### 1. Generate the files
+### 1. 生成文件
 
 ```bash
 php webman make:mcp-server Calculator
 php webman make:mcp-tool Calculator
 ```
 
-This creates `app/mcp/CalculatorServer.php` and `app/mcp/CalculatorTool.php`.
+生成以下文件：
 
-### 2. Implement the Tool
+```text
+app/mcp/CalculatorServer.php
+app/mcp/CalculatorTool.php
+```
+
+### 2. 实现 Tool
+
+将 `app/mcp/CalculatorTool.php` 修改为：
 
 ```php
 <?php
@@ -57,7 +63,7 @@ final class CalculatorTool implements ToolInterface
     {
         return new ToolDefinition(
             'calculate',
-            'Add two numbers.',
+            '计算两个数字之和。',
             [
                 'type' => 'object',
                 'properties' => [
@@ -88,10 +94,11 @@ final class CalculatorTool implements ToolInterface
 }
 ```
 
-Save it as `app/mcp/CalculatorTool.php`. Arguments and structured output are validated against their
-JSON Schemas.
+SDK 会根据 JSON Schema 校验输入参数和结构化输出。
 
-### 3. Register the Tool
+### 3. 注册 Tool
+
+将 `app/mcp/CalculatorServer.php` 修改为：
 
 ```php
 <?php
@@ -124,8 +131,7 @@ final class CalculatorServer
 }
 ```
 
-Save it as `app/mcp/CalculatorServer.php`, then update
-`config/plugin/tinywan/webman-mcp/servers.php`:
+然后修改 `config/plugin/tinywan/webman-mcp/servers.php`：
 
 ```php
 <?php
@@ -139,10 +145,10 @@ return [
 ];
 ```
 
-Anonymous access is enabled only for this local example. Production Servers should provide explicit
-implementations of `AuthenticatorInterface` and `AuthorizerInterface`.
+上面的本地示例显式允许匿名访问。生产环境应实现自己的 `AuthenticatorInterface` 和
+`AuthorizerInterface`，不要直接允许匿名访问。
 
-### 4. Verify and run
+### 4. 检查并启动
 
 ```bash
 php webman mcp:inspect
@@ -150,7 +156,7 @@ php webman mcp:list
 php start.php start
 ```
 
-Call the Tool (replace the port if needed):
+调用 Tool，端口请根据实际环境调整：
 
 ```bash
 curl -i http://127.0.0.1:8787/mcp/calculator \
@@ -175,34 +181,33 @@ curl -i http://127.0.0.1:8787/mcp/calculator \
   }'
 ```
 
-The response contains `structuredContent.value: 13`.
+响应中的 `structuredContent.value` 应为 `13`。
 
-## Commands
+## 命令
 
-Run commands from the Webman project root:
+请在 Webman 项目根目录执行：
 
-| Command | Description |
+| 命令 | 说明 |
 | --- | --- |
-| `php webman make:mcp-server <name>` | Generate a Server scaffold |
-| `php webman make:mcp-tool <name>` | Generate a Tool scaffold |
-| `php webman mcp:list` | List configured Servers and Tools |
-| `php webman mcp:inspect` | Validate configuration and Schemas |
-| `php webman mcp:install` | Publish individual missing configuration files |
+| `php webman make:mcp-server <name>` | 生成 Server 文件 |
+| `php webman make:mcp-tool <name>` | 生成 Tool 文件 |
+| `php webman mcp:list` | 列出已配置的 Server 和 Tool |
+| `php webman mcp:inspect` | 检查配置和 Schema |
+| `php webman mcp:install` | 发布缺失的配置文件 |
 
-`mcp:install` never overwrites existing files. It is not available when the command registration
-configuration itself is missing.
+`mcp:install` 不会覆盖已有文件。如果命令注册配置本身缺失，该命令将不可用。
 
-## Documentation
+## 文档
 
-- [Protocol compatibility](docs/PROTOCOL_COMPATIBILITY.md)
-- [Security](docs/SECURITY.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Pinned official schema](resources/schema/README.md)
-- [Calculator example](examples/Calculator)
+- [协议兼容性](docs/PROTOCOL_COMPATIBILITY.md)
+- [安全说明](docs/SECURITY.md)
+- [架构说明](docs/ARCHITECTURE.md)
+- [固定版本的官方 Schema](resources/schema/README.md)
+- [Calculator 示例](examples/Calculator)
 
-## Using with Codex and Other Agents
+## 在 Codex 和其他 Agent 中使用
 
-Start the Webman Server first and make sure the Agent can access its URL:
+先启动 Webman，并确保 Agent 可以访问 MCP Server 地址：
 
 ```bash
 php start.php start
@@ -210,15 +215,14 @@ php start.php start
 
 ### Codex CLI
 
-Register the HTTP endpoint:
+注册 HTTP Endpoint：
 
 ```bash
 codex mcp add calculator --url http://127.0.0.1:8787/mcp/calculator
 codex mcp list
 ```
 
-If the Server uses Bearer authentication, store the token in an environment variable and register
-its name instead of putting the token in the command:
+如果 Server 使用 Bearer Token，请将 Token 保存到环境变量中：
 
 ```bash
 codex mcp add calculator \
@@ -226,30 +230,29 @@ codex mcp add calculator \
   --bearer-token-env-var MCP_CALCULATOR_TOKEN
 ```
 
-Start a new Codex session after changing the MCP configuration, then ask:
+修改 MCP 配置后启动新的 Codex 会话，然后输入：
 
 ```text
-Use the calculate Tool to add 6 and 7.
+使用 calculate 工具计算 6 加 7。
 ```
 
-Codex should discover the Server and call `calculate`, returning `13`.
+Codex 将发现该 MCP Server、调用 `calculate`，并返回 `13`。
 
-### Other Agents
+### 其他 Agent
 
-In the Agent's MCP settings, add a remote HTTP Server with these values:
+在 Agent 的 MCP 配置中添加远程 HTTP Server：
 
-| Setting | Value |
+| 配置项 | 值 |
 | --- | --- |
-| Name | `calculator` |
+| 名称 | `calculator` |
 | URL | `http://127.0.0.1:8787/mcp/calculator` |
-| Transport | HTTP / Streamable HTTP |
-| Protocol version | `2026-07-28` |
+| 传输方式 | HTTP / Streamable HTTP |
+| 协议版本 | `2026-07-28` |
 
-Configuration field names differ between Agents. A compatible Agent must support MCP `2026-07-28`
-and send the official per-request `_meta`, `MCP-Protocol-Version`, `Mcp-Method`, and conditional
-`Mcp-Name` routing Headers. This SDK does not support `initialize`, sessions, protocol downgrade, or
-legacy SSE transport.
+不同 Agent 的配置字段可能不同。客户端必须支持 MCP `2026-07-28`，并自动发送每次请求所需的
+`_meta`、`MCP-Protocol-Version`、`Mcp-Method` 以及按条件发送的 `Mcp-Name` 请求头。
 
-If the Agent runs in Docker, a VM, or another host, `127.0.0.1` points to that environment rather than
-the Webman host. Use an address reachable from the Agent, such as `host.docker.internal`, a container
-service name, or the Server's LAN/domain address.
+本 SDK 不支持 `initialize`、Session、协议降级或旧版 SSE Transport。
+
+如果 Agent 运行在 Docker、虚拟机或其他主机中，`127.0.0.1` 指向 Agent 自身环境。请改用
+Agent 能访问的地址，例如 `host.docker.internal`、容器服务名、局域网地址或域名。
