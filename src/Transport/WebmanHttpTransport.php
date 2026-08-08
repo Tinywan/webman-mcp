@@ -6,6 +6,8 @@ namespace Tinywan\Mcp\Transport;
 
 use Webman\Http\Request;
 use Webman\Http\Response;
+use Workerman\Protocols\Http\Chunk;
+use Workerman\Timer;
 
 final readonly class WebmanHttpTransport
 {
@@ -23,6 +25,24 @@ final readonly class WebmanHttpTransport
                 $request->rawBody(),
             ),
         );
+
+        if (($response->headers['Content-Type'] ?? null) === 'text/event-stream' && $request->connection !== null) {
+            $connection = $request->connection;
+            Timer::add(
+                0.001,
+                static function () use ($connection, $response): void {
+                    if ($connection->send(new Chunk($response->body)) === false) {
+                        $connection->close();
+
+                        return;
+                    }
+                    $connection->send(new Chunk(''));
+                },
+                persistent: false,
+            );
+
+            return new Response($response->status, [...$response->headers, 'Transfer-Encoding' => 'chunked']);
+        }
 
         return new Response($response->status, $response->headers, $response->body);
     }

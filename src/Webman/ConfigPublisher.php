@@ -9,7 +9,7 @@ use Tinywan\Mcp\Command\ProjectWriter;
 
 final readonly class ConfigPublisher
 {
-    private const FILES = ['app.php', 'command.php', 'servers.php', 'route.php'];
+    private const FILES = ['app.php', 'command.php', 'servers.php', 'route.php', 'production.php'];
 
     public function __construct(
         private ProjectWriter $writer = new ProjectWriter(),

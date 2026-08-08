@@ -23,7 +23,11 @@ final readonly class StreamResult implements ProtocolDispatchResult
      */
     public function headers(): array
     {
-        return ['Content-Type' => 'text/event-stream'];
+        return [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-store',
+            'X-Accel-Buffering' => 'no',
+        ];
     }
 
     public function payload(): null

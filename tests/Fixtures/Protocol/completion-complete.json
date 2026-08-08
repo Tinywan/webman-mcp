@@ -1,0 +1,27 @@
+{
+    "headers": {
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/event-stream",
+        "MCP-Protocol-Version": "2026-07-28",
+        "Mcp-Method": "completion/complete"
+    },
+    "body": {
+        "jsonrpc": "2.0",
+        "id": 11,
+        "method": "completion/complete",
+        "params": {
+            "_meta": {
+                "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+                "io.modelcontextprotocol/clientCapabilities": {}
+            },
+            "ref": {
+                "type": "ref/prompt",
+                "name": "greet"
+            },
+            "argument": {
+                "name": "name",
+                "value": "A"
+            }
+        }
+    }
+}

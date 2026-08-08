@@ -10,4 +10,4 @@
 | SHA-256 | `ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203` |
 
 The runtime never fetches or evaluates this file. Tests use it to verify the supported
-`server/discover`, `tools/list`, and `tools/call` wire shapes against the pinned protocol release.
+`server/discover`, Tool, Resource, Prompt, and Completion wire shapes against the pinned protocol release.

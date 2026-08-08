@@ -33,6 +33,8 @@ final readonly class ServerRegistry
             }
 
             $this->validateTools($server, $validator);
+            $this->validateResources($server);
+            $this->validatePrompts($server);
             $byId[$server->id] = $server;
             $byPath[$server->path] = $server;
         }
@@ -73,6 +75,49 @@ final readonly class ServerRegistry
 
             $validator->assertDefinition($tool->definition);
             $names[$name] = true;
+        }
+    }
+
+    private function validateResources(ServerDefinition $server): void
+    {
+        $uris = [];
+        foreach ($server->resources() as $resource) {
+            $uri = $resource->definition->uri;
+            if (array_key_exists($uri, $uris)) {
+                throw new RegistryException("Duplicate Resource URI '{$uri}' in Server '{$server->id}'.");
+            }
+            $uris[$uri] = true;
+        }
+
+        $templates = [];
+        foreach ($server->resourceTemplates() as $template) {
+            $uriTemplate = $template->definition->uriTemplate;
+            if (array_key_exists($uriTemplate, $templates)) {
+                throw new RegistryException("Duplicate Resource Template '{$uriTemplate}' in Server '{$server->id}'.");
+            }
+            $templates[$uriTemplate] = true;
+        }
+    }
+
+    private function validatePrompts(ServerDefinition $server): void
+    {
+        $names = [];
+        foreach ($server->prompts() as $prompt) {
+            if (array_key_exists($prompt->definition->name, $names)) {
+                throw new RegistryException(
+                    "Duplicate Prompt name '{$prompt->definition->name}' in Server '{$server->id}'.",
+                );
+            }
+            $names[$prompt->definition->name] = true;
+        }
+
+        $references = [];
+        foreach ($server->completions() as $completion) {
+            $key = $completion->reference->key();
+            if (array_key_exists($key, $references)) {
+                throw new RegistryException("Duplicate Completion reference '{$key}' in Server '{$server->id}'.");
+            }
+            $references[$key] = true;
         }
     }
 }

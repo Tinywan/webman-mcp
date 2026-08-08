@@ -23,6 +23,8 @@ final readonly class ServerDefinition
 
     public ServerOptions $options;
 
+    public ServerFeatures $features;
+
     /**
      * @param list<RegisteredTool> $tools
      */
@@ -34,6 +36,7 @@ final readonly class ServerDefinition
         ?AuthenticatorInterface $authenticator = null,
         ?AuthorizerInterface $authorizer = null,
         ?ServerOptions $options = null,
+        ?ServerFeatures $features = null,
     ) {
         if ($id === '') {
             throw new InvalidArgumentException('A Server ID cannot be empty.');
@@ -42,6 +45,8 @@ final readonly class ServerDefinition
         $normalizedPath = '/' . trim($path, characters: '/');
         $this->path = $normalizedPath === '/' ? '/' : rtrim($normalizedPath, characters: '/');
         $this->registeredTools = array_values($tools);
+        $features ??= new ServerFeatures();
+        $this->features = $features;
         $this->authenticator = $authenticator ?? new DenyAllAuthenticator();
         $this->authorizer = $authorizer ?? new DenyAllAuthorizer();
         $this->options = $options ?? new ServerOptions();
@@ -64,5 +69,71 @@ final readonly class ServerDefinition
         }
 
         return null;
+    }
+
+    /**
+     * @return list<RegisteredResource>
+     */
+    public function resources(): array
+    {
+        return $this->features->resources->resources;
+    }
+
+    public function resource(string $uri): ?RegisteredResource
+    {
+        foreach ($this->features->resources->resources as $resource) {
+            if ($resource->definition->uri === $uri) {
+                return $resource;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return list<RegisteredResourceTemplate>
+     */
+    public function resourceTemplates(): array
+    {
+        return $this->features->resources->templates;
+    }
+
+    /** @return list<RegisteredPrompt> */
+    public function prompts(): array
+    {
+        return $this->features->prompts->prompts;
+    }
+
+    public function prompt(string $name): ?RegisteredPrompt
+    {
+        foreach ($this->features->prompts->prompts as $prompt) {
+            if ($prompt->definition->name === $name) {
+                return $prompt;
+            }
+        }
+
+        return null;
+    }
+
+    /** @return list<RegisteredCompletion> */
+    public function completions(): array
+    {
+        return $this->features->prompts->completions;
+    }
+
+    public function completion(string $key): ?RegisteredCompletion
+    {
+        foreach ($this->features->prompts->completions as $completion) {
+            if ($completion->reference->key() === $key) {
+                return $completion;
+            }
+        }
+
+        return null;
+    }
+
+    public function subscription(): ?RegisteredSubscription
+    {
+        return $this->features->subscriptions->subscription;
     }
 }

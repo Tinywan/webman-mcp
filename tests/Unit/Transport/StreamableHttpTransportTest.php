@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Pest\PendingCalls\TestCall;
+use Tinywan\Mcp\Examples\Status\StatusServer;
 use Tinywan\Mcp\Registry\OriginPolicy;
 use Tinywan\Mcp\Registry\RegisteredTool;
 use Tinywan\Mcp\Registry\ServerDefinition;
@@ -298,5 +299,56 @@ it('maps a Webman request and response without session or SSE behavior', functio
         ->and($response->getHeader('Content-Type'))
         ->toBe('application/json')
         ->and($response->getHeader('Mcp-Session-Id'))
+        ->toBeNull();
+});
+
+it('uses SSE only for Subscription listening and keeps ordinary paths as JSON', function (): void {
+    $transport = http_transport([StatusServer::definition()]);
+    $listenBody = transport_body(
+        'subscriptions/listen',
+        [
+            'notifications' => [
+                'resourceSubscriptions' => ['status://service'],
+                'toolsListChanged' => true,
+            ],
+        ],
+        id: 41,
+    );
+    $stream = $transport->handle(transport_request(path: '/mcp/status', body: $listenBody, overrides: [
+        'Mcp-Method' => 'subscriptions/listen',
+        'Origin' => null,
+    ]));
+    $discover = $transport->handle(transport_request(
+        path: '/mcp/status',
+        body: transport_body('server/discover'),
+        overrides: ['Mcp-Method' => 'server/discover', 'Origin' => null],
+    ));
+    $raw =
+        "POST /mcp/status HTTP/1.1\r\n"
+        . "Host: localhost\r\n"
+        . "Content-Type: application/json\r\n"
+        . "Accept: application/json, text/event-stream\r\n"
+        . "MCP-Protocol-Version: 2026-07-28\r\n"
+        . "Mcp-Method: subscriptions/listen\r\n"
+        . 'Content-Length: '
+        . strlen($listenBody)
+        . "\r\n\r\n"
+        . $listenBody;
+    $webman = (new WebmanHttpTransport($transport))->handle(new Request($raw));
+
+    expect($stream->headers['Content-Type'] ?? null)
+        ->toBe('text/event-stream')
+        ->and($stream->body)
+        ->toStartWith(
+            "event: message\ndata: {\"jsonrpc\":\"2.0\",\"method\":\"notifications/subscriptions/acknowledged\"",
+        )
+        ->and($stream->body)
+        ->not
+        ->toContain('id: ', 'Mcp-Session-Id', 'Last-Event-ID')
+        ->and($discover->headers['Content-Type'] ?? null)
+        ->toBe('application/json')
+        ->and($webman->getHeader('Content-Type'))
+        ->toBe('text/event-stream')
+        ->and($webman->getHeader('Mcp-Session-Id'))
         ->toBeNull();
 });

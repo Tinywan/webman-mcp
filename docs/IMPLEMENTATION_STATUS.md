@@ -6,12 +6,18 @@
 - Pinned MCP `2026-07-28` protocol parsing and deterministic errors
 - Immutable multi-Server registry and deny-by-default security policies
 - Tool listing/calling, Opis Schema validation, local references, and sanitized failures
-- Stateless Streamable HTTP POST transport and Webman request/response adapter
+- Resource and Resource Template listing, opaque pagination, authorized reads, and bounded content
+- Prompt listing/rendering and bounded Prompt/Resource argument Completion
+- Typed Server notifications, authorized bounded Subscriptions, request progress, and cancellation
+- Digest-only static Bearer authentication with a pluggable verifier boundary
+- Principal-scoped rate/concurrency admission, explicit idempotency, deadlines, and response limits
+- Redacted lifecycle audit, telemetry, null defaults, and Webman-friendly adapters
+- Stateless Streamable HTTP POST transport, bounded event streams, and Webman chunked response adapter
 - Publishable plugin config and five Webman Console commands
-- Calculator example and end-to-end protocol tests
+- Calculator Tool, Library Resource, Assistant Prompt, and Status Subscription examples with protocol tests
 
 ## Intentional Limits
 
-The release has no Client, Resources, Prompts, Tasks, MRTR, subscriptions, SSE output, legacy
-transport, session support, protocol downgrade, OAuth, JWT/JWKS, rate limiting, idempotency, or full
-audit implementation. These require separate changes.
+The release has no Client, Tasks, MRTR, durable subscription replay, legacy GET/DELETE event
+transport, session support, protocol downgrade, OAuth authorization server, built-in JWT/JWKS
+verification, or a mandated distributed limiter/store/metrics vendor. These remain application concerns.

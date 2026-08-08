@@ -2,15 +2,28 @@
 
 declare(strict_types=1);
 
+use Tinywan\Mcp\Contracts\AuditSinkInterface;
 use Tinywan\Mcp\Contracts\AuthenticatorInterface;
 use Tinywan\Mcp\Contracts\AuthorizerInterface;
+use Tinywan\Mcp\Contracts\BearerTokenVerifierInterface;
+use Tinywan\Mcp\Contracts\CompletionProviderInterface;
+use Tinywan\Mcp\Contracts\ConcurrencyLimiterInterface;
+use Tinywan\Mcp\Contracts\IdempotencyStoreInterface;
+use Tinywan\Mcp\Contracts\PromptAuthorizerInterface;
+use Tinywan\Mcp\Contracts\PromptRendererInterface;
+use Tinywan\Mcp\Contracts\PromptResolverInterface;
 use Tinywan\Mcp\Contracts\ProtocolDriverInterface;
+use Tinywan\Mcp\Contracts\RateLimiterInterface;
+use Tinywan\Mcp\Contracts\ResourceAuthorizerInterface;
+use Tinywan\Mcp\Contracts\ResourceHandlerInterface;
+use Tinywan\Mcp\Contracts\ResourceResolverInterface;
+use Tinywan\Mcp\Contracts\TelemetryInterface;
 use Tinywan\Mcp\Contracts\ToolInterface;
 use Tinywan\Mcp\Protocol\Result\AcceptedResult;
 use Tinywan\Mcp\Protocol\Result\JsonResult;
 use Tinywan\Mcp\Protocol\Result\StreamResult;
 
-it('exposes the four public extension contracts', function (): void {
+it('exposes the public extension contracts', function (): void {
     expect(interface_exists(ProtocolDriverInterface::class))
         ->toBeTrue()
         ->and(interface_exists(ToolInterface::class))
@@ -18,6 +31,32 @@ it('exposes the four public extension contracts', function (): void {
         ->and(interface_exists(AuthenticatorInterface::class))
         ->toBeTrue()
         ->and(interface_exists(AuthorizerInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(ResourceHandlerInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(ResourceResolverInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(ResourceAuthorizerInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(PromptRendererInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(CompletionProviderInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(PromptResolverInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(PromptAuthorizerInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(BearerTokenVerifierInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(RateLimiterInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(ConcurrencyLimiterInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(IdempotencyStoreInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(AuditSinkInterface::class))
+        ->toBeTrue()
+        ->and(interface_exists(TelemetryInterface::class))
         ->toBeTrue();
 });
 

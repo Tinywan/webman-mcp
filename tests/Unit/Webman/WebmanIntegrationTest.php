@@ -76,7 +76,17 @@ it('publishes configuration once and preserves every existing target', function 
         $command = $root . '/config/plugin/tinywan/webman-mcp/command.php';
         $servers = $root . '/config/plugin/tinywan/webman-mcp/servers.php';
         $route = $root . '/config/plugin/tinywan/webman-mcp/route.php';
-        expect($app)->toBeFile()->and($command)->toBeFile()->and($servers)->toBeFile()->and($route)->toBeFile();
+        $production = $root . '/config/plugin/tinywan/webman-mcp/production.php';
+        expect($app)
+            ->toBeFile()
+            ->and($command)
+            ->toBeFile()
+            ->and($servers)
+            ->toBeFile()
+            ->and($route)
+            ->toBeFile()
+            ->and($production)
+            ->toBeFile();
 
         $custom = "<?php\n\n// application-owned\n";
         file_put_contents($app, $custom, LOCK_EX);
@@ -163,12 +173,14 @@ it('inspects valid configuration and returns nonzero diagnostics for invalid con
         ->toContain('MCP configuration is valid')
         ->toContain('Servers: 1')
         ->toContain('Tools: 1')
+        ->toContain('Bearer: 0')
         ->and($invalid->execute([]))
         ->toBe(Command::FAILURE)
         ->and($invalid->getDisplay())
         ->toContain('[ERROR]')
         ->toContain('MCP inspection failed')
-        ->toContain('Duplicate Server path');
+        ->toContain('invalid configuration');
+    expect($invalid->getDisplay())->not->toContain('Duplicate Server path');
 });
 
 it('validates configured definitions and builds one callback per Server path', function (): void {

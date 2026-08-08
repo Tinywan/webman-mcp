@@ -16,6 +16,14 @@ handling does not fetch or evaluate a Schema over the network.
 - `server/discover`
 - `tools/list`
 - `tools/call`
+- `resources/list`
+- `resources/read`
+- `resources/templates/list`
+- `prompts/list`
+- `prompts/get`
+- `completion/complete`
+- `subscriptions/listen`
+- `notifications/cancelled`
 
 Every other method, including `initialize`, returns JSON-RPC method-not-found (`-32601`). The SDK does
 not probe or negotiate another protocol version.
@@ -42,12 +50,15 @@ Errors retain a valid request ID when it can be identified safely and otherwise 
 - The official `MCP-Protocol-Version` and `Mcp-Method` routing Headers are required; `Mcp-Name` is
   required for `tools/call`. Their values must match the JSON-RPC body.
 - Notifications return HTTP 202 with an empty body.
+- Configured governance applies finite deadlines and serialized byte limits to JSON and event-stream responses.
+- Optional rate, concurrency, and method-scoped idempotency controls do not add protocol methods or session state.
 - Incoming `Mcp-Session-Id` and `Last-Event-ID` are ignored and never echoed.
-- No v0.1 response emits SSE.
+- A successful `subscriptions/listen` POST emits `text/event-stream`; all other successful requests
+  remain JSON and notifications remain empty HTTP 202 responses.
 
 ## Breaking Legacy Boundary
 
-Version 0.1 intentionally does not support `initialize`, legacy HTTP/SSE transport, protocol probing,
+Version 0.1 intentionally does not support `initialize`, legacy GET/DELETE SSE transport, protocol probing,
 downgrade, session creation/resumption, or legacy clients that require those behaviors.
 
 ## Client Compatibility
@@ -58,5 +69,5 @@ does not implement or emulate Client behavior.
 
 ## Deferred Capabilities
 
-Client APIs, Resources, Prompts, Tasks, MRTR, subscriptions, SSE output, OAuth, JWT/JWKS, rate
-limiting, idempotency, and full audit facilities are outside v0.1.
+Client APIs, Tasks, MRTR, durable subscription replay, an OAuth authorization server, and built-in
+JWT/JWKS verification are outside v0.1. JWT/JWKS adapters remain available through the verifier contract.

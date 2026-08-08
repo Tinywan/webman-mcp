@@ -3,11 +3,13 @@
 Stateless MCP Server SDK for Webman and PHP 8.2+.
 
 - MCP protocol: `2026-07-28`
-- Methods: `server/discover`, `tools/list`, `tools/call`
-- Transport: stateless HTTP POST
+- Methods: `server/discover`, Tools, Resources, Prompts, Completion, and Subscriptions
+- Transport: stateless HTTP POST with bounded event-stream responses for `subscriptions/listen`
 - Authentication and authorization: denied by default
 
 See the official [MCP `2026-07-28` release](https://blog.modelcontextprotocol.io/posts/2026-07-28/).
+Production deployments should also follow [the deployment guide](docs/DEPLOYMENT.md) for digest-only
+Bearer credentials, governance controls, and redacted observability.
 
 ## Installation
 
@@ -195,8 +197,11 @@ configuration itself is missing.
 - [Protocol compatibility](docs/PROTOCOL_COMPATIBILITY.md)
 - [Security](docs/SECURITY.md)
 - [Architecture](docs/ARCHITECTURE.md)
+- [Contributing and release checks](docs/CONTRIBUTING.md)
 - [Pinned official schema](resources/schema/README.md)
 - [Calculator example](examples/Calculator)
+- [Library Resource example](examples/Library)
+- [Assistant Prompt example](examples/Assistant)
 
 ## Using with Codex and Other Agents
 
@@ -245,8 +250,9 @@ In the Agent's MCP settings, add a remote HTTP Server with these values:
 
 Configuration field names differ between Agents. A compatible Agent must support MCP `2026-07-28`
 and send the official per-request `_meta`, `MCP-Protocol-Version`, `Mcp-Method`, and conditional
-`Mcp-Name` routing Headers. This SDK does not support `initialize`, sessions, protocol downgrade, or
-legacy SSE transport.
+`Mcp-Name` routing Headers. This SDK does not support `initialize`, sessions, protocol downgrade,
+legacy GET/DELETE SSE transport, or event replay. `subscriptions/listen` uses an authorized,
+bounded POST response and delivers events at most once.
 
 If the Agent runs in Docker, a VM, or another host, `127.0.0.1` points to that environment rather than
 the Webman host. Use an address reachable from the Agent, such as `host.docker.internal`, a container

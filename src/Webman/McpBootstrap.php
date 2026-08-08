@@ -7,9 +7,15 @@ namespace Tinywan\Mcp\Webman;
 use Closure;
 use RuntimeException;
 use support\Container as SupportContainer;
+use Tinywan\Mcp\Prompt\ContainerPromptResolver;
 use Tinywan\Mcp\Registry\ServerRegistry;
+use Tinywan\Mcp\Resource\ContainerResourceResolver;
+use Tinywan\Mcp\Runtime\ProcessCancellationCoordinator;
+use Tinywan\Mcp\Subscription\ContainerSubscriptionResolver;
+use Tinywan\Mcp\Subscription\SubscriptionServices;
 use Tinywan\Mcp\Tool\ContainerToolResolver;
 use Tinywan\Mcp\Transport\StreamableHttpTransport;
+use Tinywan\Mcp\Transport\TransportServices;
 use Tinywan\Mcp\Transport\WebmanHttpTransport;
 use Webman\Container;
 use Webman\Http\Request;
@@ -32,7 +38,20 @@ final class McpBootstrap
 
     public static function transport(ServerRegistry $registry, Container $container): WebmanHttpTransport
     {
-        return new WebmanHttpTransport(new StreamableHttpTransport($registry, new ContainerToolResolver($container)));
+        return new WebmanHttpTransport(
+            new StreamableHttpTransport(
+                $registry,
+                new ContainerToolResolver($container),
+                new ContainerResourceResolver($container),
+                new ContainerPromptResolver($container),
+                services: new TransportServices(
+                    new SubscriptionServices(
+                        new ContainerSubscriptionResolver($container),
+                        new ProcessCancellationCoordinator(),
+                    ),
+                ),
+            ),
+        );
     }
 
     /**
