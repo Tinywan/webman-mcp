@@ -22,7 +22,7 @@
         "workerman/webman-framework": "^2.1"
     },
     "require-dev": {
-        "carthage-software/mago": "^1.45",
+        "carthage-software/mago": "^1.47",
         "pestphp/pest": "^3.8"
     },
     "autoload": {
@@ -33,7 +33,8 @@
     "autoload-dev": {
         "psr-4": {
             "Tinywan\\Mcp\\Examples\\": "examples/",
-            "Tinywan\\Mcp\\Tests\\": "tests/"
+            "Tinywan\\Mcp\\Tests\\": "tests/",
+            "Tinywan\\Mago\\": ".mago/extension/"
         }
     },
     "scripts": {
